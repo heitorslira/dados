@@ -6,9 +6,13 @@ import io
 
 
 def last_lines(file_path:str)-> Iterator[str]:
-    yield 'And this is line 3'
-    yield 'This is line 2'
-    yield 'This is a file'
+    with open(file_path, 'r') as file:
+        #get the last 3 lines
+        lines = file.readlines()[-3:]
+        #reverse the list
+        lines.reverse()
+        #return an iterator
+        return iter(lines)
     
     
 class TestLastLines(TestCase):
