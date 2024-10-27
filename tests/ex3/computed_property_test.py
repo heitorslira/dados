@@ -1,5 +1,6 @@
-from unittest import TestCase
 from math import sqrt
+from unittest import TestCase
+
 from src.ex3.ex3 import computed_property
 
 
