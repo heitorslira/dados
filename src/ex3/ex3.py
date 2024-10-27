@@ -1,55 +1,79 @@
-from _thread import RLock
-from functools import cached_property
-
-_NOT_FOUND = object()
-from types import GenericAlias
-
-
 class computed_property:
-    def __init__(self, func):
+    def __init__(self, *args):
+        self.args = args
+        self.computed_once = False
+        self.cached_value = None
+
+    def __call__(self, func):
         self.func = func
-        self.attrname = None
         self.__doc__ = func.__doc__
-        self.lock = RLock()
+        self.params = {arg: None for arg in self.args}
+        return self
 
-    def __set_name__(self, owner, name):
-        if self.attrname is None:
-            self.attrname = name
-        elif name != self.attrname:
-            raise TypeError(
-                "Cannot assign the same cached_property to two different names "
-                f"({self.attrname!r} and {name!r})."
-            )
+    def __get__(self, instance, owner):
+        if not self.computed_once:
+            self.computed_once = True
+            self.params = {arg: None for arg in self.args}
+            computed_value = self._compute(instance)
+            return computed_value
+        if self._check_params_changed(instance):
+            computed_value = self._compute(instance)
+            return computed_value
+        else:
+            return self.cached_value
 
-    def __get__(self, instance, owner=None):
-        if instance is None:
-            return self
-        if self.attrname is None:
-            raise TypeError(
-                "Cannot use cached_property instance without calling __set_name__ on it.")
-        try:
-            cache = instance.__dict__
-        except AttributeError:  # not all objects have __dict__ (e.g. class defines slots)
-            msg = (
-                f"No '__dict__' attribute on {type(instance).__name__!r} "
-                f"instance to cache {self.attrname!r} property."
-            )
-            raise TypeError(msg) from None
-        val = cache.get(self.attrname, _NOT_FOUND)
-        if val is _NOT_FOUND:
-            with self.lock:
-                # check if another thread filled cache while we awaited lock
-                val = cache.get(self.attrname, _NOT_FOUND)
-                if val is _NOT_FOUND:
-                    val = self.func(instance)
-                    try:
-                        cache[self.attrname] = val
-                    except TypeError:
-                        msg = (
-                            f"The '__dict__' attribute on {type(instance).__name__!r} instance "
-                            f"does not support item assignment for caching {self.attrname!r} property."
-                        )
-                        raise TypeError(msg) from None
-        return val
+    def _compute(self, instance):
+        print(f"computing {self.func.__name__}")
+        calculated_attrib = self.func(instance)
+        self.cached_value = calculated_attrib
+        self._set_cahced_attribs(instance)
 
-    __class_getitem__ = classmethod(GenericAlias)
+        return self.cached_value
+
+    def _check_params_changed(self, instance):
+        for param, value in self.params.items():
+            if value != getattr(instance, param):
+                return True
+        return False
+
+    def _set_cahced_attribs(self, instance):
+        for param in self.params:
+            self.params[param] = getattr(instance, param)
+
+
+def vector():
+    from math import sqrt
+    class Vector:
+        def __init__(self, x, y, z, color=None):
+            self.x, self.y, self.z = x, y, z
+            self.color = color 
+        @computed_property('x', 'y', 'z')
+        def magnitude(self):
+            return sqrt(self.x**2 + self.y**2 + self.z**2)
+    
+    v = Vector(9, 2, 6)
+    print(v.magnitude)
+    
+    v.color = 'red'
+    print(v.magnitude)
+    
+    v.y = 18
+    print(v.magnitude)
+    
+    
+def circle():
+    class Circle:
+        def __init__(self, radius=1):
+            self.radius = radius
+        
+        
+        @computed_property('radius', 'area')
+        def diameter(self):
+            return self.radius * 2
+    
+    circle = Circle()
+    circle.diameter
+
+if __name__ == '__main__':
+    # vector()
+    circle()
