@@ -57,3 +57,22 @@ def reconcile_accounts(transaction1: TDataType, transaction2: TDataType) -> TDat
             row.append("MISSING")
 
     return transaction1, transaction2
+
+
+def main():
+    from pprint import pprint
+    from pathlib import Path
+    import csv
+    
+    path = Path(__file__).parent
+    transactions1 = list(csv.reader(Path(path / "data" / "transactions1.csv").open()))
+    transactions2 = list(csv.reader(Path(path / "data" / "transactions2.csv").open()))
+    out1, out2 = reconcile_accounts(transactions1, transactions2)
+    
+    pprint(out1)
+    print()
+    pprint(out2)
+    
+if __name__ == "__main__":
+    main()
+    
