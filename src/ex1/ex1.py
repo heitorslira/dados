@@ -31,6 +31,12 @@ def reconcile_accounts(transaction1: TDataType, transaction2: TDataType) -> TDat
 
                 for date_tr2 in dates_tr2:
                     if date_tr1 == date_tr2 and tr2_index not in matched_indexes.values():
+                        prev_match = matched_indexes.get(idx1)
+                        if prev_match is not None:
+                            prev_found_date = dt.datetime.strptime(transaction2[prev_match][0],'%Y-%m-%d')
+                            if prev_found_date <= date_tr1:
+                                continue
+                            
                         matched_indexes[idx1]=tr2_index
                         # found_tr1_indexes.add(idx1)
                         # found_tr2_indexes.add(tr2_index)
