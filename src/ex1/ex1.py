@@ -5,10 +5,6 @@ from pathlib import Path
 from pprint import pprint
 from typing import Dict, List
 
-path = Path(__file__).parent
-transactions1 = list(csv.reader(Path(path / "data" / "transactions1.csv").open()))
-transactions2 = list(csv.reader(Path(path / "data" / "transactions2.csv").open()))
-
 TDataType = List[List[str]]
 LAGS = 1
 
@@ -54,10 +50,3 @@ def reconcile_accounts(transaction1: TDataType, transaction2: TDataType) -> TDat
             row.append("MISSING")
 
     return transaction1, transaction2
-
-
-out1, out2 = reconcile_accounts(transactions1, transactions2)
-from pprint import pprint
-
-pprint(out1)
-pprint(out2)
