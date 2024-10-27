@@ -30,50 +30,70 @@ class computed_property:
 
         return self.cached_value
 
+    def _initialize_existing_params(self, instance):
+        for param in self.params:
+            try:
+                attrib = getattr(instance, param)
+            except AttributeError:
+                continue
+            self.params[param] = attrib
+            
+
     def _check_params_changed(self, instance):
         for param, value in self.params.items():
-            if value != getattr(instance, param):
+            try:
+                attrib = getattr(instance, param)
+            except AttributeError:
+                continue
+            if value != attrib:
                 return True
         return False
 
     def _set_cahced_attribs(self, instance):
         for param in self.params:
-            self.params[param] = getattr(instance, param)
+            try:
+                self.params[param] = getattr(instance, param)
+            except AttributeError:
+                continue
 
 
 def vector():
     from math import sqrt
+
     class Vector:
         def __init__(self, x, y, z, color=None):
             self.x, self.y, self.z = x, y, z
-            self.color = color 
-        @computed_property('x', 'y', 'z')
+            self.color = color
+
+        @computed_property("x", "y", "z")
         def magnitude(self):
             return sqrt(self.x**2 + self.y**2 + self.z**2)
-    
+
     v = Vector(9, 2, 6)
     print(v.magnitude)
-    
-    v.color = 'red'
+
+    v.color = "red"
     print(v.magnitude)
-    
+
     v.y = 18
     print(v.magnitude)
-    
-    
+
+
 def circle():
     class Circle:
         def __init__(self, radius=1):
             self.radius = radius
-        
-        
-        @computed_property('radius', 'area')
+
+        @computed_property("radius", "area")
         def diameter(self):
             return self.radius * 2
-    
-    circle = Circle()
-    circle.diameter
 
-if __name__ == '__main__':
+    circle = Circle()
+    print(circle.diameter)
+    print(circle.diameter)
+    print(circle.diameter)
+
+
+if __name__ == "__main__":
     # vector()
     circle()
