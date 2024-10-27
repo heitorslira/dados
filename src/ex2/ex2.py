@@ -35,10 +35,12 @@ def last_lines(
                 remaining_read_file = remaining_read_file[: next_pos + 1]
             pos = pos + pos_add
 
+
 def main():
-    file_path = Path(__file__).parent.parent.parent / "tests" / "ex2" /'test_files'/'my_file1.txt'
+    file_path = Path(__file__).parent / "my_file.txt"
     for line in last_lines(file_path):
-        print(line, end='')
-    
+        print(line, end="")
+
+
 if __name__ == "__main__":
     main()
