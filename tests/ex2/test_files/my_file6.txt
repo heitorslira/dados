@@ -1,0 +1,8 @@
+Neste arquivo
+coloco um texto
+de tamanha variado
+sem esquecer de usar alguns caracteres especiais
+como por exemplo é o ã
+desta forma
+poderei ver como
+minha função funciona em casos extremos
